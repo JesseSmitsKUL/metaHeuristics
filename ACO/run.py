@@ -21,7 +21,7 @@ def run(customers,plotGraph=False):
     graph = Graph(cost_matrix, rank)
     path, cost = aco.solve(graph)
     cost = round(cost,2)
-    print('cost: {}, path: {}'.format(cost, path))
+    # print('cost: {}, path: {}'.format(cost, path))
     if plotGraph:
         plot(points, path)
     return (cost,path)
