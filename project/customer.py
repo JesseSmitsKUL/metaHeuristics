@@ -6,6 +6,15 @@ class Customer:
         self.release = rd
         self.id = id
 
+    def getData(self):
+        return [self.coordinate[0], self.coordinate[1], self.release]
+
+    def __str__(self):
+        return 'CustomerRD ' + str(self.release)
+
+    def __repr__(self):
+       return 'CustomerRD ' + str(self.release)
+
 class Depot:
 
     def __init__(self,x,y):

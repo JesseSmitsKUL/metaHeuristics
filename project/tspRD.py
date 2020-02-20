@@ -2,6 +2,8 @@ from project.customer import *
 from ACO.aco import *
 from ACO.run import *
 from random import seed, random, choice, shuffle, randint
+from project.clustering import cluster
+
 
 
 def earliestStart(route):
@@ -10,11 +12,12 @@ def earliestStart(route):
         stopRD = stop.release
         if stopRD > routeEarly:
             routeEarly = stopRD
+
     return routeEarly
 
 class TspRD:
 
-    def __init__(self,costumers,depot, generations=10):
+    def __init__(self,costumers,depot, generations=200):
         self.costumers = costumers
         self.depot = depot
         self.bestSol = (None,900000000000000)
@@ -25,6 +28,8 @@ class TspRD:
     def initialize(self):
         self.solution = [self.costumers]
         delayStart = earliestStart(self.costumers)
+
+
         (score, path) = run([self.depot] + self.costumers, True)
 
         if score < self.bestSol[1]:
@@ -32,12 +37,19 @@ class TspRD:
 
         # print(self.bestSol)
 
-
     def optimization(self):
         print("START! initial solution", self.bestSol[1])
         sol = self.solution
-        for x in range(self.generations):
 
+
+
+        print(sol)
+        sol = cluster(2,sol[0])
+
+
+
+        for x in range(self.generations):
+            break
             randomVal = randint(0,4)
             while randomVal != 0:
                 if randomVal == 1:
@@ -61,29 +73,21 @@ class TspRD:
             #     print(earliestStart(x))
             # print('\n')
 
-            totalScore = 0
-            for route in sol:
-                # if earliest start of route is after return of vehicle we need to add waiting time
-                delayStart = max(0,earliestStart(route)-totalScore)
-                route = route + [self.depot]
-                (score, path) = run(route, False)
-                totalScore += score + delayStart
-                print("score: ",totalScore)
+        totalScore = 0
+        for route in sol:
+            # if earliest start of route is after return of vehicle we need to add waiting time
+            delayStart = max(0,earliestStart(route)-totalScore)
+            route = route + [self.depot]
+            (score, path) = run(route, True)
+            totalScore += score + delayStart
+            print("score: ",totalScore)
 
-            if totalScore < self.bestSol[1]:
-                print("Better solution: ", totalScore)
-                self.bestSol = (self.solution,totalScore)
+        if totalScore < self.bestSol[1]:
+            print("Better solution: ", totalScore)
+            self.bestSol = (self.solution,totalScore)
+        print("Best so far: ", self.bestSol[1])
 
-            print("\n\n")
-
-
-
-
-
-
-
-
-
+        print("\n\n")
 
 
     def merge(self,solution):

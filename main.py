@@ -3,7 +3,7 @@ from ACO.run import *
 from project.tspRD import TspRD
 
 def main():
-    parser = FileParser("eil51_3.dat")
+    parser = FileParser("rd100_3.dat")
     parser.parseFile()
 
     customers = parser.vertices
