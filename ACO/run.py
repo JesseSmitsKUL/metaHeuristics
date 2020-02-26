@@ -17,7 +17,7 @@ def run(customers,plotGraph=False):
         for j in range(rank):
             row.append(distance(customers[i].coordinate, customers[j].coordinate))
         cost_matrix.append(row)
-    aco = ACO(15, 150, 1.0, 10.0, 0.5, 10, 2)
+    aco = ACO(15, 100, 1.0, 10.0, 0.5, 10, 2)
     graph = Graph(cost_matrix, rank)
     path, cost = aco.solve(graph)
     cost = round(cost,2)

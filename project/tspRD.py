@@ -4,8 +4,15 @@ from ACO.run import *
 from random import seed, random, choice, shuffle, randint
 from project.clustering import cluster
 from copy import deepcopy
+from math import sqrt
+from datetime import datetime
 
 
+def distance(c1,c2):
+    x1,y1 = c1.coordinate
+    x2,y2 = c2.coordinate
+
+    return sqrt( (x1-x2)**2 + (y1-y2)**2 )
 
 def earliestStart(route):
     routeEarly = 0
@@ -24,6 +31,7 @@ class TspRD:
         self.bestSol = (None,900000000000000)
         self.solution = []
         self.toEval = []
+        self.timeStart = 0
         self.generations = generations
         self.initialize()
 
@@ -38,7 +46,8 @@ class TspRD:
             self.bestSol = (self.solution,score + delayStart)
 
         self.toEval.append(self.solution)
-        # print(self.bestSol)
+
+        self.timeStart = datetime.now()
 
     def destroyRepair(self,alpha):
         pass
@@ -51,7 +60,7 @@ class TspRD:
             # if earliest start of route is after return of vehicle we need to add waiting time
             delayStart = max(0, earliestStart(route) - totalScore)
             route = route + [self.depot]
-            (score, path) = run(route, True)
+            (score, path) = run(route, False)
             totalScore += score + delayStart
             print("score: ", totalScore)
 
@@ -67,21 +76,34 @@ class TspRD:
         # print(sol)
         # sol = cluster(2,sol[0])
 
+        self.toEval = [self.bestSol[0]]
+
         for x in range(self.generations):
+
+            print("TIME: ",(datetime.now() - self.timeStart).total_seconds() / 60.0)
+
             newSol = []
             sol = choice(self.toEval)
+            sol = [x for x in sol if x != []]
 
             newSol.append(self.split(sol))
             newSol.append(self.move(sol))
-            newSol.append(self.swap(sol))
+            newSol.append(self.shift(sol))
             newSol.append(self.merge(sol))
 
 
-            scores = [(self.getScore(s),s) for s in newSol]
-            scores.sort(key=lambda x: x[0])
+            scores = [(s,self.getScore(s)) for s in newSol]
+            scores.sort(key=lambda x: x[1])
 
-            print(scores)
-            break
+
+            if scores[0][1] <  self.bestSol[1]:
+                self.bestSol = scores[0]
+                print("new best score: ", self.bestSol[1])
+
+            print("Current best score: ", self.bestSol[1])
+
+            self.toEval = [self.bestSol[0],choice(scores)[0]]  #, choice(scores)[0], choice(scores)[0]]
+
 
 
     def merge(self,solution):
@@ -99,50 +121,76 @@ class TspRD:
         return solution
 
 
-    def split(self,solution):   # [  [x] [y] [z] ]
+    def split(self,solution):
         solution = deepcopy(solution)
         part = choice(solution)
-        if len(part) == 1:
+        if len(part) < 2:
             return solution
 
         solution.remove(part)
 
-        split = cluster(randint(2,6),part)
+        split = cluster(randint(2,min(len(part),6)),part)
 
 
         split.sort(key=lambda x: earliestStart(x))
-        rest = []
-        for x in split[1:]:
-            rest += x
 
-        print("info")
-        print(len(part))
-        print(len(split[0]), len(rest))
-        solution.append(split[0])
-        solution.append(rest)
+        if randint(0,1) == 0:
+            rest = []
+            for x in split[1:]:
+                rest += x
+
+            solution.append(split[0])
+            solution.append(rest)
+        else:
+            rest = []
+            for x in split[:-1]:
+                rest += x
+
+            solution.append(split[-1])
+            solution.append(rest)
 
         return solution
 
 
-    def swap(self,solution):
+    def shift(self,solution):
         solution = deepcopy(solution)
         if len(solution) == 1:
             return solution
-        part1 = choice(solution)
-        solution.remove(part1)
+        index = randint(0,len(solution)-1)
+        part1 = solution[index]
+        part1.sort(key=lambda x: x.release)
 
-        part2 = choice(solution)
-        solution.remove(part2)
+        scoreLeft  = "N" if index == 0 else part1[0].release -sorted(solution[index-1],key=lambda x : x.release)[-1].release
+        scoreRight = "N" if index == len(solution)-1 else sorted(solution[index+1],key=lambda x : x.release)[0].release - part1[-1].release
 
-        c1 = choice(part1)
-        c2 = choice(part2)
+        if scoreLeft == "N":
+            print("RIGHT ")
+            i = randint(0, len(part1) - 1)
+            if len(part1) > 0:
+                solution[index+1].extend(part1[i:])
+                del part1[i:]
 
-        part1.remove(c1)
-        part1.append(c2)
-        part2.remove(c2)
-        part2.append(c1)
+        elif scoreRight == "N":
+            i = randint(0, len(solution[index-1]) - 1)
+            if len(solution[index-1]) > 0:
+                solution[index - 1].sort(key=lambda x: x.release)
+                part1.extend(solution[index-1][i:])
+                del solution[index-1][i:]
 
-        solution.extend([part1,part2])
+        else:
+            r = randint(0,1)
+            if r == 0:
+                if len(part1) > 0:
+                    i = randint(0, len(part1) - 1)
+                    solution[index+1].extend(part1[i:])
+                    del part1[i:]
+            else:
+                i = randint(0, len(solution[index - 1]) - 1)
+                if len(solution[index - 1]) > 0:
+                    solution[index - 1].sort(key=lambda x: x.release)
+                    part1.extend(solution[index - 1][i:])
+                    del solution[index - 1][i:]
+
         return solution
 
 
@@ -150,16 +198,29 @@ class TspRD:
         solution = deepcopy(solution)
         if len(solution) == 1:
             return solution
+
+
+
+
+
         part1 = choice(solution)
-        solution.remove(part1)
-
-        part2 = choice(solution)
-        solution.remove(part2)
-
         c1 = choice(part1)
         part1.remove(c1)
-        part2.append(c1)
 
-        solution.extend([part1,part2])
+        # part2 = choice(solution)
+        # solution.remove(part2)
+
+        sDistance = 100000000000
+        sRoute = 0
+        for route in solution:
+            for v in route:
+                d = distance(c1,v)
+                if d < sDistance:
+                    sRoute = route
+                    sDistance = d
+
+
+
+        route.append(c1)
         solution = [x for x in solution if x != []]
         return solution
