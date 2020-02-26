@@ -3,6 +3,7 @@ from ACO.aco import *
 from ACO.run import *
 from random import seed, random, choice, shuffle, randint
 from project.clustering import cluster
+from copy import deepcopy
 
 
 
@@ -22,6 +23,7 @@ class TspRD:
         self.depot = depot
         self.bestSol = (None,900000000000000)
         self.solution = []
+        self.toEval = []
         self.generations = generations
         self.initialize()
 
@@ -35,62 +37,55 @@ class TspRD:
         if score < self.bestSol[1]:
             self.bestSol = (self.solution,score + delayStart)
 
+        self.toEval.append(self.solution)
         # print(self.bestSol)
 
-    def optimization(self):
-        print("START! initial solution", self.bestSol[1])
-        sol = self.solution
+    def destroyRepair(self,alpha):
+        pass
 
-
-
-        print(sol)
-        sol = cluster(2,sol[0])
-
-
-
-        for x in range(self.generations):
-            break
-            randomVal = randint(0,4)
-            while randomVal != 0:
-                if randomVal == 1:
-                    sol = self.split(sol)
-                elif randomVal == 2:
-                    sol = self.move(sol)
-                elif randomVal == 3:
-                    sol = self.swap(sol)
-                elif randomVal == 4:
-                    sol = self.merge(sol)
-                else:
-                    continue
-                randomVal = randint(0,4)
-
-            sol.sort(key=lambda x: earliestStart(x))
-
-            self.solution = sol
-
-            #print(sol)
-            # for x in sol:
-            #     print(earliestStart(x))
-            # print('\n')
-
+    def getScore(self,sol):
+        print("Calculating new score")
         totalScore = 0
+        sol.sort(key=lambda x: earliestStart(x))
         for route in sol:
             # if earliest start of route is after return of vehicle we need to add waiting time
-            delayStart = max(0,earliestStart(route)-totalScore)
+            delayStart = max(0, earliestStart(route) - totalScore)
             route = route + [self.depot]
             (score, path) = run(route, True)
             totalScore += score + delayStart
-            print("score: ",totalScore)
+            print("score: ", totalScore)
 
         if totalScore < self.bestSol[1]:
             print("Better solution: ", totalScore)
-            self.bestSol = (self.solution,totalScore)
-        print("Best so far: ", self.bestSol[1])
+            print("\n\n")
+        return totalScore
 
-        print("\n\n")
+
+    def optimization(self):
+        print("START! initial solution", self.bestSol[1])
+        # sol = self.solution
+        # print(sol)
+        # sol = cluster(2,sol[0])
+
+        for x in range(self.generations):
+            newSol = []
+            sol = choice(self.toEval)
+
+            newSol.append(self.split(sol))
+            newSol.append(self.move(sol))
+            newSol.append(self.swap(sol))
+            newSol.append(self.merge(sol))
+
+
+            scores = [(self.getScore(s),s) for s in newSol]
+            scores.sort(key=lambda x: x[0])
+
+            print(scores)
+            break
 
 
     def merge(self,solution):
+        solution = deepcopy(solution)
         if len(solution) == 1:
             return solution
         part1 = choice(solution)
@@ -104,22 +99,33 @@ class TspRD:
         return solution
 
 
-    def split(self,solution):
+    def split(self,solution):   # [  [x] [y] [z] ]
+        solution = deepcopy(solution)
         part = choice(solution)
         if len(part) == 1:
             return solution
 
         solution.remove(part)
 
-        shuffle(part)
-        cut = randint(1, len(part)-1)
-        subPart1 = part[:cut]
-        subPart2 = part[cut:]
-        solution.extend([subPart1,subPart2])
+        split = cluster(randint(2,6),part)
+
+
+        split.sort(key=lambda x: earliestStart(x))
+        rest = []
+        for x in split[1:]:
+            rest += x
+
+        print("info")
+        print(len(part))
+        print(len(split[0]), len(rest))
+        solution.append(split[0])
+        solution.append(rest)
+
         return solution
 
 
     def swap(self,solution):
+        solution = deepcopy(solution)
         if len(solution) == 1:
             return solution
         part1 = choice(solution)
@@ -141,6 +147,7 @@ class TspRD:
 
 
     def move(self,solution):
+        solution = deepcopy(solution)
         if len(solution) == 1:
             return solution
         part1 = choice(solution)
