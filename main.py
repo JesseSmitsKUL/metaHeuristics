@@ -1,19 +1,23 @@
 from project.parser import FileParser
 from ACO.run import *
 from project.tspRD import TspRD
+from copy import deepcopy
 
 def main():
-    parser = FileParser("berlin52_3.dat")
+    parser = FileParser("kroB100_1.dat")
     parser.parseFile()
 
     customers = parser.vertices
     depot = parser.depot
 
+
     tsprd = TspRD(customers,depot)
+
+
+
     tsprd.optimization()
     #run(customers)
 
 
 if __name__ == "__main__":
-    # execute only if run as a script
     main()

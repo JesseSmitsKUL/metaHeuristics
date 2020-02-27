@@ -13,7 +13,10 @@ class Customer:
         return 'CustomerRD ' + str(self.release)
 
     def __repr__(self):
-       return 'CustomerRD ' + str(self.release)
+       return "C " +str(self.id)
+
+    def __eq__(self, other):
+        return self.id == other.id
 
 class Depot:
 

@@ -9,6 +9,7 @@ class FileParser:
         self.depot = None
 
     def parseFile(self):
+        #fileLoc = open("./dataTSP/Solomon/100/1TSP_100/" + self.filename)
         fileLoc = open("./dataTSP/TSPLIB/" + self.filename)
         lines = fileLoc.readlines()
         depot = lines[5].split()

@@ -1,3 +1,8 @@
+def warn(*args, **kwargs):
+    pass
+import warnings
+warnings.warn = warn
+
 import numpy as np
 import matplotlib.pyplot as plt
 # Though the following import is not directly being used, it is required
@@ -9,7 +14,7 @@ from random import choice
 from sklearn import datasets
 
 
-def cluster(nrClusters,nodes, plot= False):
+def cluster(nrClusters,nodes, plot=False):
 
     cust = nodes
     nodeList = []
@@ -51,5 +56,4 @@ def cluster(nrClusters,nodes, plot= False):
     sol = [[] for x in range(nrClusters)]
     for x in range(len(labels)):
         sol[labels[x]].append(cust[x])
-    print(sol)
     return sol
