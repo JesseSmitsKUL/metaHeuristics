@@ -62,7 +62,7 @@ class TspRD:
         self.timeStart = datetime.now()
 
     def printinfo(self):
-        print("control: ", self.control, " currentSol ", self.currentSol, ' routes: ', len(self.toEval[0]))
+        print("control: ", self.control, " currentSol ", self.currentSol, ' routes: ', len(self.toEval[0][0]))
 
     def destroyRepair(self,solpair):
 
@@ -81,11 +81,14 @@ class TspRD:
             print(sol)
             newRoute = []
             part = choice(sol)
-            part.sort(key=lambda x: x.release)
-            newRoute.append(part[0])
-            del part[0]
-            sol.append(newRoute)
-            print(sol)
+            if len(part) < 2:
+                sol.append([])
+            else:
+                part.sort(key=lambda x: x.release)
+                newRoute.append(part[0])
+                del part[0]
+                sol.append(newRoute)
+                print(sol)
 
 
 
@@ -175,7 +178,7 @@ class TspRD:
 
             # newSol.sort(key=lambda x: x[1])
 
-            if newSol[1] <  self.bestSol[1]:
+            if newSol[1] < self.bestSol[1]:
                 self.bestSol = newSol
                 print("new best score: ", self.bestSol[1])
                 self.control = 0.0
