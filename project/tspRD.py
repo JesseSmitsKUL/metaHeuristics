@@ -71,14 +71,12 @@ class TspRD:
 
         sol = deepcopy(solpair[0])
         # merge or split randomly
-        if randint(0,10) == 0:
+        if randint(0,1) == 0:
             p1 = choice(sol)
             sol.remove(p1)
             p2 = choice(sol)
             p2.extend(p1)
         else:
-            print('CHECK RD')
-            print(sol)
             newRoute = []
             part = choice(sol)
             if len(part) < 2:
@@ -94,7 +92,7 @@ class TspRD:
 
         cost = [x for x in range(len(self.costumers))]
         shuffle(cost)
-        index = int((self.control/4.0)*len(cost))-1
+        index = int((self.control/5.0)*len(cost))-1
         toShuffle = cost[:index]
 
 
@@ -171,6 +169,7 @@ class TspRD:
             # newSol.append(self.merge(sol))
 
             newSol = self.split(sol)
+            newSol = self.hSplit(newSol)
             newSol = self.merge(newSol)
             newSol = self.shift(newSol)
             newSol = self.move(newSol)
@@ -195,7 +194,7 @@ class TspRD:
             self.printinfo()
 
             repairedSol = self.destroyRepair(self.bestSol)
-            self.toEval = [repairedSol]  #, choice(scores)[0], choice(scores)[0]]
+            self.toEval = [self.bestSol]  #, choice(scores)[0], choice(scores)[0]]
 
 
 
@@ -237,6 +236,28 @@ class TspRD:
         # solution.append(newPart)
         # return solution
 
+    def hSplit(self,solutionpair):
+        current_score = solutionpair[1]
+        solution = deepcopy(solutionpair[0])
+
+        for x in range(len(solutionpair[0])):
+            if len(solution[x]) == 1:
+                continue
+
+            solution[x].sort(key=lambda x: x.release)
+
+            split = [[solution[x][0]], solution[x][1:]]
+            del solution[x]
+            solution.extend(split)
+            score = self.getScore(solution)
+
+
+            if score < current_score:
+                return (solution, score)
+
+            solution = deepcopy(solutionpair[0])
+
+        return solutionpair
 
     def split(self,solutionpair):
 

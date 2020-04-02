@@ -4,7 +4,7 @@ from project.tspRD import TspRD
 from copy import deepcopy
 
 def main():
-    parser = FileParser("kroB100_1.dat")
+    parser = FileParser("berlin52_3.dat")
     parser.parseFile()
 
     customers = parser.vertices
