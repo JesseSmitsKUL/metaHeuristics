@@ -50,7 +50,7 @@ def cluster(nrClusters,nodes, plot=False):
     ax.set_title(titles[fignum - 1])
     ax.dist = 12
     fignum = fignum + 1
-    if plot:
+    if plot and 1 = 0:
         plt.show()
 
     sol = [[] for x in range(nrClusters)]

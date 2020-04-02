@@ -8,6 +8,7 @@ from copy import deepcopy
 
 DatasetList = os.listdir("./dataTSP/TSPLIB/")
 def main():
+    print(DatasetList)
     for file in DatasetList:
 
         parser = FileParser(file)

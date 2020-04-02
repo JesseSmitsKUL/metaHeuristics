@@ -35,7 +35,7 @@ def earliestStart(route):
 
 class TspRD:
 
-    def __init__(self,costumers,depot, generations=400):
+    def __init__(self,costumers,depot, generations=2):
         self.costumers = costumers
         self.depot = depot
         self.bestSol = (None,None)
@@ -54,7 +54,7 @@ class TspRD:
         delayStart = earliestStart(self.costumers)
 
 
-        (score, path) = run([self.depot] + self.costumers, False, True)
+        (score, path) = run([self.depot] + self.costumers, False, False)
 
         self.initialize = score + delayStart
         self.bestSol = (self.solution, score + delayStart)
@@ -228,7 +228,7 @@ class TspRD:
         print(score)
         print("##############")
         f = open("TSPResults.txt", "a")
-        f.write("This is the score for " + dataset + str(score))
+        f.write(dataset + ": " + str(score) + "\n")
         f.close()
 
 
