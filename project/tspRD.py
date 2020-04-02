@@ -46,6 +46,7 @@ class TspRD:
         self.control = 0
         self.validatedScores = dict()
         self.currentSol = 0
+        self.initialScore = 10000000000000
         self.initialize()
 
     def initialize(self):
@@ -53,9 +54,10 @@ class TspRD:
         delayStart = earliestStart(self.costumers)
 
 
-        (score, path) = run([self.depot] + self.costumers, True)
+        (score, path) = run([self.depot] + self.costumers, False, True)
 
-        self.bestSol = (self.solution,score + delayStart)
+        self.initialize = score + delayStart
+        self.bestSol = (self.solution, score + delayStart)
 
         self.toEval.append(self.bestSol)
 
@@ -113,7 +115,32 @@ class TspRD:
         self.currentSol = score
         if self.control == 1.0:
             self.control = 0
-        return (sol,score)
+
+        if score > self.initialScore:
+            return solpair
+        else:
+            return (sol,score)
+
+    def getScorePerformance(self,sol):
+        totalScore = 0
+        # print("start Scoring")
+        sol.sort(key=lambda x: earliestStart(x))
+        for route in sol:
+            route.sort(key=lambda x: x.id)
+            score = 0
+            tuppleroute = toTupleIds(route)
+            if tuppleroute in self.validatedScores:
+                score = self.validatedScores[tuppleroute]
+            else:
+                routeWD = route + [self.depot]
+                (score, path) = run(routeWD, True, False)
+                self.validatedScores[tuppleroute] = score
+
+            # if earliest start of route is after return of vehicle we need to add waiting time
+            delayStart = max(0, earliestStart(route) - totalScore)
+            totalScore += score + delayStart
+        # print("end Scoring")
+        return totalScore
 
 
     def getScore(self,sol):
@@ -128,7 +155,7 @@ class TspRD:
                 score = self.validatedScores[tuppleroute]
             else:
                 routeWD = route + [self.depot]
-                (score, path) = run(routeWD, False)
+                (score, path) = run(routeWD,False, False)
                 self.validatedScores[tuppleroute] = score
 
             # if earliest start of route is after return of vehicle we need to add waiting time
@@ -194,7 +221,14 @@ class TspRD:
             self.printinfo()
 
             repairedSol = self.destroyRepair(self.bestSol)
-            self.toEval = [self.bestSol]  #, choice(scores)[0], choice(scores)[0]]
+            self.toEval = [repairedSol]  #, choice(scores)[0], choice(scores)[0]]
+
+        print("##############\nFinal score with performance ACO:")
+        score = self.getScorePerformance(self.bestSol[0])
+        print(score)
+        print("##############")
+
+
 
 
 
