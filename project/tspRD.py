@@ -33,6 +33,10 @@ def earliestStart(route):
 
     return routeEarly
 
+def rmEL(sol):
+    newroute = [x for x in sol[0] if x]
+    return (newroute,sol[1])
+
 class TspRD:
 
     def __init__(self,costumers,depot, generations=200):
@@ -74,10 +78,11 @@ class TspRD:
         sol = deepcopy(solpair[0])
         # merge or split randomly
         if randint(0,1) == 0:
-            p1 = choice(sol)
-            sol.remove(p1)
-            p2 = choice(sol)
-            p2.extend(p1)
+            if len(sol) > 1:
+                p1 = choice(sol)
+                sol.remove(p1)
+                p2 = choice(sol)
+                p2.extend(p1)
         else:
             newRoute = []
             part = choice(sol)
@@ -195,11 +200,12 @@ class TspRD:
             # newSol.append(self.shift(sol))
             # newSol.append(self.merge(sol))
 
-            newSol = self.split(sol)
-            newSol = self.hSplit(newSol)
-            newSol = self.merge(newSol)
-            newSol = self.shift(newSol)
-            newSol = self.move(newSol)
+            newSol = self.split(rmEL(sol))
+            newSol = self.hSplit(rmEL(newSol))
+            newSol = self.merge(rmEL(newSol))
+            newSol = self.shift(rmEL(newSol))
+            newSol = self.move(rmEL(newSol))
+            newSol = rmEL(newSol)
 
 
             # newSol.sort(key=lambda x: x[1])
