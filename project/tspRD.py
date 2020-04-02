@@ -35,7 +35,7 @@ def earliestStart(route):
 
 class TspRD:
 
-    def __init__(self,costumers,depot, generations=2):
+    def __init__(self,costumers,depot, generations=200):
         self.costumers = costumers
         self.depot = depot
         self.bestSol = (None,None)
