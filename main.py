@@ -1,23 +1,28 @@
+import sys
+import os
 from project.parser import FileParser
 from ACO.run import *
 from project.tspRD import TspRD
 from copy import deepcopy
 
+
+DatasetList = os.listdir("./dataTSP/TSPLIB/")
 def main():
-    parser = FileParser("berlin52_3.dat")
-    parser.parseFile()
+    for file in DatasetList:
 
-    customers = parser.vertices
-    depot = parser.depot
+        parser = FileParser(file)
+        parser.parseFile()
 
-
-    tsprd = TspRD(customers,depot)
-
+        customers = parser.vertices
+        depot = parser.depot
 
 
-    tsprd.optimization()
+        tsprd = TspRD(customers,depot)
+
+
+
+        tsprd.optimization(file)
     #run(customers)
-
 
 if __name__ == "__main__":
     main()

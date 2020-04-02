@@ -165,7 +165,7 @@ class TspRD:
         return totalScore
 
 
-    def optimization(self):
+    def optimization(self,dataset):
         print("START! initial solution", self.bestSol[1])
         print("LEN! ", getSizeSol(self.bestSol[0]))
         print(self.bestSol[0])
@@ -227,6 +227,10 @@ class TspRD:
         score = self.getScorePerformance(self.bestSol[0])
         print(score)
         print("##############")
+        f = open("TSPResults.txt", "a")
+        f.write("This is the score for " + dataset + str(score))
+        f.close()
+
 
 
 
