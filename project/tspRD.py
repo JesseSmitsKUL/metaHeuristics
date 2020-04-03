@@ -60,7 +60,7 @@ class TspRD:
 
         (score, path) = run([self.depot] + self.costumers, False, False)
 
-        self.initialize = score + delayStart
+        self.initialScore = score + delayStart
         self.bestSol = (self.solution, score + delayStart)
 
         self.toEval.append(self.bestSol)

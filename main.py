@@ -11,18 +11,24 @@ def main():
     print(DatasetList)
     for file in DatasetList:
 
-        parser = FileParser(file)
-        parser.parseFile()
+        if "2." in file or "2.5." in file or "3." in file:
 
-        customers = parser.vertices
-        depot = parser.depot
+            parser = FileParser(file)
+            parser.parseFile()
+
+            customers = parser.vertices
+            depot = parser.depot
+
+            if len(customers) > 98:
+                continue
+
+            print("#############\nSOLVING: " + file + "\n#############")
+
+            tsprd = TspRD(customers,depot)
 
 
-        tsprd = TspRD(customers,depot)
 
-
-
-        tsprd.optimization(file)
+            tsprd.optimization(file)
     #run(customers)
 
 if __name__ == "__main__":
