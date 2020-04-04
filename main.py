@@ -18,8 +18,11 @@ def main():
 
             customers = parser.vertices
             depot = parser.depot
+            contents = ''
+            with open('TSPResults.txt', 'r') as c:
+                contents = c.read()
 
-            if len(customers) > 98:
+            if len(customers) > 125 or file in contents:
                 continue
 
             print("#############\nSOLVING: " + file + "\n#############")

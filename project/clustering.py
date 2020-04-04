@@ -52,6 +52,8 @@ def cluster(nrClusters,nodes, plot=False):
     fignum = fignum + 1
     if plot and 1 == 0:
         plt.show()
+    else:
+        plt.close()
 
     sol = [[] for x in range(nrClusters)]
     for x in range(len(labels)):
